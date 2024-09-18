@@ -2,6 +2,8 @@ package net.minecraftforge.gradle;
 
 import org.gradle.process.JavaExecSpec;
 
+import java.lang.reflect.Method;
+
 public class JavaExecSpecHelper {
     private static final MainSetter MAIN_SETTERS = GradleVersionUtils.choose("6.4",
             OldMainSetter::new, NewMainSetter::new);
@@ -11,10 +13,20 @@ public class JavaExecSpecHelper {
     }
 
     private static class OldMainSetter implements MainSetter {
+        private static final Method setMain;
+
+        static {
+            try {
+                setMain = JavaExecSpec.class.getMethod("setMain", String.class);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         @Override
         @Deprecated
         public void setMain(JavaExecSpec spec, String main) {
-            spec.setMain(main);
+            ReflectionHelper.call(setMain, spec, main);
         }
     }
 

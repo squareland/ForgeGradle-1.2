@@ -3,7 +3,6 @@ package net.minecraftforge.gradle;
 import org.gradle.api.tasks.compile.AbstractCompile;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class CompileTaskHelper {
@@ -33,7 +32,7 @@ public class CompileTaskHelper {
 
         @Override
         public void setDestinationDir(AbstractCompile task, File file) {
-            call(setDestinationDir, task);
+            ReflectionHelper.call(setDestinationDir, task, file);
         }
     }
 
@@ -41,15 +40,6 @@ public class CompileTaskHelper {
         @Override
         public void setDestinationDir(AbstractCompile task, File file) {
             task.getDestinationDirectory().set(file);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T call(Method method, Object self, Object... args) {
-        try {
-            return (T) method.invoke(self, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
         }
     }
 

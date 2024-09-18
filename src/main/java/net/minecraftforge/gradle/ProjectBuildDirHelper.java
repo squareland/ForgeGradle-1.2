@@ -3,7 +3,6 @@ package net.minecraftforge.gradle;
 import org.gradle.api.Project;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ProjectBuildDirHelper {
@@ -33,7 +32,7 @@ public class ProjectBuildDirHelper {
 
         @Override
         public File getBuildDir(Project project) {
-            return call(getBuildDir, project);
+            return ReflectionHelper.call(getBuildDir, project);
         }
     }
 
@@ -41,15 +40,6 @@ public class ProjectBuildDirHelper {
         @Override
         public File getBuildDir(Project project) {
             return project.getLayout().getBuildDirectory().get().getAsFile();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T call(Method method, Object self, Object... args) {
-        try {
-            return (T) method.invoke(self, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
         }
     }
 }

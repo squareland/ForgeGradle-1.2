@@ -4,7 +4,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ArchiveTaskHelper {
@@ -150,31 +149,28 @@ public class ArchiveTaskHelper {
         }
 
         @Override
-        @Deprecated
         public File getArchivePath(AbstractArchiveTask task) {
-            return call(getArchivePath, task);
+            return ReflectionHelper.call(getArchivePath, task);
         }
 
         @Override
-        @Deprecated
         public File getDestinationDir(AbstractArchiveTask task) {
-            return call(getDestinationDir, task);
+            return ReflectionHelper.call(getDestinationDir, task);
         }
 
         @Override
-        @Deprecated
         public void setDestinationDir(AbstractArchiveTask task, File destinationDir) {
-            call(setDestinationDir, task, destinationDir);
+            ReflectionHelper.call(setDestinationDir, task, destinationDir);
         }
 
         @Override
         public String getStringProperty(AbstractArchiveTask task, StringProperties prop) {
-            return ArchiveTaskHelper.call(prop.forOldGetMethod, task);
+            return ReflectionHelper.call(prop.forOldGetMethod, task);
         }
 
         @Override
         public void setStringProperty(AbstractArchiveTask task, StringProperties prop, String value) {
-            ArchiveTaskHelper.call(prop.forOldSetMethod, task, value);
+            ReflectionHelper.call(prop.forOldSetMethod, task, value);
         }
     }
 
@@ -197,21 +193,12 @@ public class ArchiveTaskHelper {
 
         @Override
         public String getStringProperty(AbstractArchiveTask task, StringProperties prop) {
-            return ArchiveTaskHelper.<Property<String>>call(prop.forNewMethod, task).getOrNull();
+            return ReflectionHelper.<Property<String>>call(prop.forNewMethod, task).getOrNull();
         }
 
         @Override
         public void setStringProperty(AbstractArchiveTask task, StringProperties prop, String value) {
-            ArchiveTaskHelper.<Property<String>>call(prop.forNewMethod, task).set(value);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T call(Method method, Object self, Object... args) {
-        try {
-            return (T) method.invoke(self, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            ReflectionHelper.<Property<String>>call(prop.forNewMethod, task).set(value);
         }
     }
 }

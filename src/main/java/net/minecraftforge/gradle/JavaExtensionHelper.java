@@ -5,7 +5,6 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSetContainer;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -55,33 +54,28 @@ public class JavaExtensionHelper {
         }
 
         @Override
-        @Deprecated
         public SourceSetContainer getSourceSets(Project project) {
-            return call(getSourceSets, getType(project));
+            return ReflectionHelper.call(getSourceSets, getType(project));
         }
 
         @Override
-        @Deprecated
         public void setSourceCompatibility(Project project, Object value) {
-            call(setSourceCompatibility, getType(project), value);
+            ReflectionHelper.call(setSourceCompatibility, getType(project), value);
         }
 
         @Override
-        @Deprecated
         public void setTargetCompatibility(Project project, Object value) {
-            call(setTargetCompatibility, getType(project), value);
+            ReflectionHelper.call(setTargetCompatibility, getType(project), value);
         }
 
         @Override
-        @Deprecated
         public JavaVersion getTargetCompatibility(Project project) {
-            return call(getTargetCompatibility, getType(project));
+            return ReflectionHelper.call(getTargetCompatibility, getType(project));
         }
 
-        @Deprecated
         public Object getType(Project project) {
-            Object convention = call(getConvention, project);
-            Map<String, Object> plugins = call(getPlugins, convention);
+            Object convention = ReflectionHelper.call(getConvention, project);
+            Map<String, Object> plugins = ReflectionHelper.call(getPlugins, convention);
             return plugins.get("java");
         }
     }
@@ -128,12 +122,4 @@ public class JavaExtensionHelper {
         return VERSION_GETTERS.getTargetCompatibility(project);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> T call(Method method, Object self, Object... args) {
-        try {
-            return (T) method.invoke(self, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
