@@ -24,7 +24,6 @@ public class JavaExecSpecHelper {
         }
 
         @Override
-        @Deprecated
         public void setMain(JavaExecSpec spec, String main) {
             ReflectionHelper.call(setMain, spec, main);
         }

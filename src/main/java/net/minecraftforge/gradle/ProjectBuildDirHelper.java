@@ -6,13 +6,13 @@ import java.io.File;
 import java.lang.reflect.Method;
 
 public class ProjectBuildDirHelper {
-    private static final BuildDirGetter VERSION_GETTERS = GradleVersionUtils.choose("4.1",
+    private static final BuildDirGetter BUILD_DIR_GETTER = GradleVersionUtils.choose("4.1",
             OldBuildDirGetter::new,
             NewBuildDirGetter::new
     );
 
     public static File getBuildDir(Project project) {
-        return VERSION_GETTERS.getBuildDir(project);
+        return BUILD_DIR_GETTER.getBuildDir(project);
     }
 
     public interface BuildDirGetter {

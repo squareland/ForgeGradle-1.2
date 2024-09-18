@@ -6,20 +6,20 @@ import java.io.File;
 import java.lang.reflect.Method;
 
 public class CompileTaskHelper {
-    private static final BuildDirGetter VERSION_GETTERS = GradleVersionUtils.choose("6.1",
-            OldBuildDirGetter::new,
-            NewBuildDirGetter::new
+    private static final CompileTaskWrapper BUILD_DIR_GETTER = GradleVersionUtils.choose("6.1",
+            OldCompileTaskWrapper::new,
+            NewCompileTaskWrapper::new
     );
 
     public static void setDestinationDir(AbstractCompile task, File file) {
-        VERSION_GETTERS.setDestinationDir(task, file);
+        BUILD_DIR_GETTER.setDestinationDir(task, file);
     }
 
-    public interface BuildDirGetter {
+    public interface CompileTaskWrapper {
         void setDestinationDir(AbstractCompile task, File file);
     }
 
-    private static class OldBuildDirGetter implements BuildDirGetter {
+    private static class OldCompileTaskWrapper implements CompileTaskWrapper {
         private static final Method setDestinationDir;
 
         static {
@@ -36,7 +36,7 @@ public class CompileTaskHelper {
         }
     }
 
-    private static class NewBuildDirGetter implements BuildDirGetter {
+    private static class NewCompileTaskWrapper implements CompileTaskWrapper {
         @Override
         public void setDestinationDir(AbstractCompile task, File file) {
             task.getDestinationDirectory().set(file);
