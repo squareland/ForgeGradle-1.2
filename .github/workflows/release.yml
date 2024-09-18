@@ -6,12 +6,12 @@ jobs:
     environment: deployment
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: "${{ secrets.ACTIONS_PAT }}"
       - name: Set up JDK 8
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '8'
@@ -34,7 +34,7 @@ jobs:
           generate-changelog -v "$VERSION"
           # create changelog for this release
           RELEASE_NOTE="$(mktemp)"
-          echo "::set-output name=RELEASE_NOTE::$RELEASE_NOTE"
+          echo "RELEASE_NOTE=$RELEASE_NOTE" >> $GITHUB_OUTPUT
           generate-changelog -v "$VERSION" --unreleased-only --stdout >> "$RELEASE_NOTE"
           # commit & tag
           git add .

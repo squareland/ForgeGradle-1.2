@@ -2,6 +2,7 @@ package net.minecraftforge.gradle.tasks;
 
 import com.google.common.base.Strings;
 import net.minecraftforge.gradle.GradleVersionUtils;
+import net.minecraftforge.gradle.ProjectBuildDirHelper;
 import net.minecraftforge.gradle.SequencedInputSupplier;
 import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.delayed.DelayedFile;
@@ -27,7 +28,7 @@ public class ApplyS2STask extends DefaultTask {
     private final List<Object> srg = new LinkedList<>();
 
     private final List<Object> exc = new LinkedList<>();
-    private final File buildDir = getProject().getBuildDir();
+    private final File buildDir = ProjectBuildDirHelper.getBuildDir(getProject());
 
     @InputFile
     @PathSensitive(PathSensitivity.ABSOLUTE)

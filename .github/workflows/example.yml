@@ -21,9 +21,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up JDK 1.8
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
           distribution: 'zulu'
           java-version: '8'
@@ -36,9 +36,9 @@ jobs:
 
     - name: get version name
       id: get-version
-      run: echo "::set-output name=version::$(./gradlew properties -q | grep "^version:" | awk '{print $2}')"
+      run: echo "version=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')" >> $GITHUB_OUTPUT
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: maven-repository
         path: ~/.m2/repository
@@ -57,10 +57,11 @@ jobs:
           - "5.0"
           - "5.6.4"
           - "6.0"
-          - "6.9.1"
+          - "6.9.4"
           - "7.0"
-          - "7.6"
+          - "7.6.2"
           - "8.0"
+          - "8.10.1"
         setting:
           - none # just build
           - setupDecompWorkspace
@@ -79,16 +80,16 @@ jobs:
             8.*) echo "EXAMPLE_BRANCH=test-heads/8" >> $GITHUB_ENV ;;
             *) echo "EXAMPLE_BRANCH=master" >> $GITHUB_ENV ;;
           esac
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ env.EXAMPLE_BRANCH }}
           repository: anatawa12/ForgeGradle-example
       - name: Set up JDK 8
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: maven-repository
           path: ~/.m2/repository
@@ -115,14 +116,14 @@ jobs:
 
       - name: Run Setup Task
         if: ${{ matrix.setting != 'none' }}
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: ./gradlew --init-script=useLocal.init.gradle ${{ matrix.setting }} --stacktrace
 
       - name: Run Build Task
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 5

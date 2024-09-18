@@ -1,6 +1,7 @@
 package net.minecraftforge.gradle.delayed;
 
 import groovy.lang.Closure;
+import net.minecraftforge.gradle.ProjectBuildDirHelper;
 import net.minecraftforge.gradle.common.BaseExtension;
 import net.minecraftforge.gradle.common.JenkinsExtension;
 import org.gradle.api.Project;
@@ -78,7 +79,7 @@ public abstract class DelayedBase<V> extends Closure<V> implements Supplier<V> {
         pattern = pattern.replace("{MC_VERSION_SAFE}", extension.getVersion().replace('-', '_'));
         pattern = pattern.replace("{MCP_VERSION}", extension.getMcpVersion());
         pattern = pattern.replace("{CACHE_DIR}", project.getGradle().getGradleUserHomeDir().getAbsolutePath().replace('\\', '/') + "/caches");
-        pattern = pattern.replace("{BUILD_DIR}", project.getBuildDir().getAbsolutePath().replace('\\', '/'));
+        pattern = pattern.replace("{BUILD_DIR}", ProjectBuildDirHelper.getBuildDir(project).getAbsolutePath().replace('\\', '/'));
         pattern = pattern.replace("{BUILD_NUM}", build);
         pattern = pattern.replace("{PROJECT}", project.getName());
         pattern = pattern.replace("{RUN_DIR}", extension.getRunDir().replace('\\', '/'));

@@ -1,13 +1,9 @@
 package net.minecraftforge.gradle;
 
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ArchiveTaskHelper {
@@ -138,44 +134,15 @@ public class ArchiveTaskHelper {
     }
 
     private static class AbstractArchiveTaskHelperBackImplOld implements AbstractArchiveTaskHelperBack {
-        @Override
-        @Deprecated
-        public File getArchivePath(AbstractArchiveTask task) {
-            return task.getArchivePath();
-        }
-
-        @Override
-        @Deprecated
-        public File getDestinationDir(AbstractArchiveTask task) {
-            return task.getDestinationDir();
-        }
-
-        @Override
-        @Deprecated
-        public void setDestinationDir(AbstractArchiveTask task, File destinationDir) {
-            task.setDestinationDir(destinationDir);
-        }
-
-        @Override
-        public String getStringProperty(AbstractArchiveTask task, StringProperties prop) {
-            return ArchiveTaskHelper.call(prop.forOldGetMethod, task);
-        }
-
-        @Override
-        public void setStringProperty(AbstractArchiveTask task, StringProperties prop, String value) {
-            ArchiveTaskHelper.call(prop.forOldSetMethod, task, value);
-        }
-    }
-
-    // @since 5.1
-    private static class AbstractArchiveTaskHelperBackImplNew implements AbstractArchiveTaskHelperBack {
-        static Method getArchiveFile;
-        static Method getDestinationDirectory;
+        private static final Method getArchivePath;
+        private static final Method getDestinationDir;
+        private static final Method setDestinationDir;
 
         static {
             try {
-                getArchiveFile = AbstractArchiveTask.class.getMethod("getArchiveFile");
-                getDestinationDirectory = AbstractArchiveTask.class.getMethod("getDestinationDirectory");
+                getArchivePath = AbstractArchiveTask.class.getMethod("getArchivePath");
+                getDestinationDir = AbstractArchiveTask.class.getMethod("getDestinationDir");
+                setDestinationDir = AbstractArchiveTask.class.getMethod("setDestinationDir", File.class);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
@@ -183,36 +150,55 @@ public class ArchiveTaskHelper {
 
         @Override
         public File getArchivePath(AbstractArchiveTask task) {
-            return ArchiveTaskHelper.<Provider<RegularFile>>call(getArchiveFile, task).get().getAsFile();
+            return ReflectionHelper.call(getArchivePath, task);
         }
 
         @Override
         public File getDestinationDir(AbstractArchiveTask task) {
-            return ArchiveTaskHelper.<DirectoryProperty>call(getDestinationDirectory, task).getAsFile().get();
+            return ReflectionHelper.call(getDestinationDir, task);
         }
 
         @Override
         public void setDestinationDir(AbstractArchiveTask task, File destinationDir) {
-            ArchiveTaskHelper.<DirectoryProperty>call(getDestinationDirectory, task)
-                    .set(task.getProject().file(destinationDir));
+            ReflectionHelper.call(setDestinationDir, task, destinationDir);
         }
 
         @Override
         public String getStringProperty(AbstractArchiveTask task, StringProperties prop) {
-            return ArchiveTaskHelper.<Property<String>>call(prop.forNewMethod, task).getOrNull();
+            return ReflectionHelper.call(prop.forOldGetMethod, task);
         }
 
         @Override
         public void setStringProperty(AbstractArchiveTask task, StringProperties prop, String value) {
-            ArchiveTaskHelper.<Property<String>>call(prop.forNewMethod, task).set(value);
+            ReflectionHelper.call(prop.forOldSetMethod, task, value);
         }
     }
 
-    private static <T> T call(Method method, Object self, Object... args) {
-        try {
-            return (T) method.invoke(self, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+    // @since 5.1
+    private static class AbstractArchiveTaskHelperBackImplNew implements AbstractArchiveTaskHelperBack {
+        @Override
+        public File getArchivePath(AbstractArchiveTask task) {
+            return task.getArchiveFile().get().getAsFile();
+        }
+
+        @Override
+        public File getDestinationDir(AbstractArchiveTask task) {
+            return task.getDestinationDirectory().getAsFile().get();
+        }
+
+        @Override
+        public void setDestinationDir(AbstractArchiveTask task, File destinationDir) {
+            task.getDestinationDirectory().set(task.getProject().file(destinationDir));
+        }
+
+        @Override
+        public String getStringProperty(AbstractArchiveTask task, StringProperties prop) {
+            return ReflectionHelper.<Property<String>>call(prop.forNewMethod, task).getOrNull();
+        }
+
+        @Override
+        public void setStringProperty(AbstractArchiveTask task, StringProperties prop, String value) {
+            ReflectionHelper.<Property<String>>call(prop.forNewMethod, task).set(value);
         }
     }
 }

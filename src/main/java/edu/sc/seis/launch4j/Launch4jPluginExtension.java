@@ -1,6 +1,7 @@
 package edu.sc.seis.launch4j;
 
 import net.minecraftforge.gradle.JavaExtensionHelper;
+import net.minecraftforge.gradle.ProjectBuildDirHelper;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class Launch4jPluginExtension implements Serializable {
     private static final Pattern JAVA_VERSION_REGEX = Pattern.compile("\\d+(\\.\\d+){0,1}");
 
     public File getXmlOutFileForProject(Project project) {
-        return project.file(project.getBuildDir() + "/" + outputDir + "/" + xmlFileName);
+        return project.file(ProjectBuildDirHelper.getBuildDir(project) + "/" + outputDir + "/" + xmlFileName);
     }
 
     void initExtensionDefaults(Project project) {
