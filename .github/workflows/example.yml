@@ -36,7 +36,7 @@ jobs:
 
     - name: get version name
       id: get-version
-      run: echo "::set-output name=version::$(./gradlew properties -q | grep "^version:" | awk '{print $2}')"
+      run: echo "version=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')" >> $GITHUB_OUTPUT
 
     - uses: actions/upload-artifact@v4
       with:
