@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 
 @CacheableTask
@@ -22,7 +23,7 @@ public class DownloadTask extends DefaultTask {
     private DelayedFile output;
 
     @TaskAction
-    public void doTask() throws IOException {
+    public void doTask() throws IOException, URISyntaxException {
         File output = getOutput();
         output.getParentFile().mkdirs();
         output.createNewFile();
@@ -31,7 +32,7 @@ public class DownloadTask extends DefaultTask {
 
         // TODO: check etags... maybe?
 
-        HttpURLConnection connect = (HttpURLConnection) new URL(getUrl()).openConnection();
+        HttpURLConnection connect = (HttpURLConnection) new URI(getUrl()).toURL().openConnection();
         connect.setRequestProperty("User-Agent", Constants.USER_AGENT);
         connect.setInstanceFollowRedirects(true);
 

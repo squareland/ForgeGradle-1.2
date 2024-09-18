@@ -92,7 +92,7 @@ public class LiteLoaderPlugin extends UserLibBasePlugin {
         {
 
             EtagDownloadTask task = makeTask("getLiteLoaderJson", EtagDownloadTask.class);
-            task.setUrl("https://dl.liteloader.com/versions/versions.json");
+            task.setUri("https://dl.liteloader.com/versions/versions.json");
             task.setFile(json);
             task.setDieWithError(false);
 

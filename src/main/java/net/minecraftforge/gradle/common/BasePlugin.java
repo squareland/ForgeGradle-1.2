@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -282,7 +281,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         EtagDownloadTask etagDlTask;
         etagDlTask = makeTask("getVersionJsonIndex", EtagDownloadTask.class);
         {
-            etagDlTask.setUrl(delayedString(Constants.MC_JSON_INDEX_URL));
+            etagDlTask.setUri(delayedString(Constants.MC_JSON_INDEX_URL));
             etagDlTask.setFile(delayedFile(Constants.VERSION_JSON_INDEX));
             etagDlTask.setDieWithError(false);
         }
@@ -307,7 +306,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             }
             etagDlTask.dependsOn("getVersionJsonIndex");
             etagDlTask.getInputs().file(delayedFile(Constants.VERSION_JSON_INDEX));
-            etagDlTask.setUrl(new GetVersionJsonUrl());
+            etagDlTask.setUri(new GetVersionJsonUrl());
             etagDlTask.setFile(delayedFile(Constants.VERSION_JSON));
             etagDlTask.setDieWithError(false);
             //TODO: this is not necessary?
@@ -379,7 +378,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             task.getInputs().file(delayedFile(Constants.VERSION_JSON));
             task.dependsOn("getVersionJson");
 
-            etagDlTask.setUrl(new GetDataFromJson(json -> json.assetIndex.url));
+            etagDlTask.setUri(new GetDataFromJson(json -> json.assetIndex.url));
             etagDlTask.setFile(delayedFile(Constants.ASSETS + "/indexes/{ASSET_INDEX}.json"));
             etagDlTask.setDieWithError(false);
 
@@ -558,9 +557,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 etag = "";
             }
 
-            URL url = new URL(strUrl);
-
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            HttpURLConnection con = (HttpURLConnection) new URI(strUrl).toURL().openConnection();
             con.setInstanceFollowRedirects(true);
             con.setRequestProperty("User-Agent", Constants.USER_AGENT);
 

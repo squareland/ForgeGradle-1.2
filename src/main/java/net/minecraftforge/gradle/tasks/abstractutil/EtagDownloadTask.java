@@ -7,26 +7,25 @@ import net.minecraftforge.gradle.FileUtils;
 import net.minecraftforge.gradle.common.Constants;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class EtagDownloadTask extends DefaultTask {
-    Object url;
+    Object uri;
     Object file;
     boolean dieWithError;
 
     @TaskAction
-    public void doTask() throws IOException {
-        URL url = getUrl();
+    public void doTask() throws IOException, URISyntaxException {
+        URI uri = getUri();
         File outFile = getFile();
         File etagFile = getProject().file(getFile().getPath() + ".etag");
 
@@ -41,7 +40,7 @@ public class EtagDownloadTask extends DefaultTask {
         }
 
         try {
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            HttpURLConnection con = (HttpURLConnection) uri.toURL().openConnection();
             con.setInstanceFollowRedirects(true);
             con.setRequestProperty("User-Agent", Constants.USER_AGENT);
             con.setRequestProperty("If-None-Match", etag);
@@ -50,7 +49,7 @@ public class EtagDownloadTask extends DefaultTask {
 
             switch (con.getResponseCode()) {
                 case 404: // file not found.... duh...
-                    error("" + url + "  404'ed!");
+                    error(uri + "  404'ed!");
                     break;
                 case 304: // content is the same.
                     this.setDidWork(false);
@@ -70,7 +69,7 @@ public class EtagDownloadTask extends DefaultTask {
 
                     break;
                 default: // another code?? uh..
-                    error("Unexpected reponse " + con.getResponseCode() + " from " + url);
+                    error("Unexpected reponse " + con.getResponseCode() + " from " + uri);
                     break;
             }
 
@@ -89,18 +88,32 @@ public class EtagDownloadTask extends DefaultTask {
         }
     }
 
-    @Input
-    @SuppressWarnings("rawtypes")
+    @Deprecated
+    @Internal
     public URL getUrl() throws MalformedURLException {
-        while (url instanceof Closure) {
-            url = ((Closure) url).call();
+        try {
+            return getUri().toURL();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
-
-        return new URL(url.toString());
     }
 
+    @Deprecated
     public void setUrl(Object url) {
-        this.url = url;
+        this.setUri(url);
+    }
+
+    @Input
+    public URI getUri() throws URISyntaxException {
+        while (uri instanceof Closure<?>) {
+            uri = ((Closure<?>) uri).call();
+        }
+
+        return new URI(uri.toString());
+    }
+
+    public void setUri(Object url) {
+        this.uri = url;
     }
 
     @OutputFile

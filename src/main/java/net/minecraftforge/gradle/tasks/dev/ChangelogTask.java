@@ -15,7 +15,8 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -85,12 +86,12 @@ public class ChangelogTask extends DefaultTask {
         getProject().getArtifacts().add("archives", getOutput());
     }
 
-    private String read(String url) throws IOException {
-        return read(new URL(getServerRoot() + "job/" + getJobName() + url));
+    private String read(String url) throws IOException, URISyntaxException {
+        return read(new URI(getServerRoot() + "job/" + getJobName() + url));
     }
 
-    private String read(URL url) throws IOException {
-        URLConnection con = url.openConnection();
+    private String read(URI url) throws IOException {
+        URLConnection con = url.toURL().openConnection();
         con.setRequestProperty("User-Agent", Constants.USER_AGENT);
         if (auth != null) {
             getLogger().debug(auth);
