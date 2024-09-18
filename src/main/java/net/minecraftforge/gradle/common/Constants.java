@@ -2,6 +2,7 @@ package net.minecraftforge.gradle.common;
 
 import com.google.common.io.ByteStreams;
 import groovy.lang.Closure;
+import net.minecraftforge.gradle.ProjectBuildDirHelper;
 import net.minecraftforge.gradle.StringUtils;
 import net.minecraftforge.gradle.json.version.OS;
 import org.gradle.api.Project;
@@ -234,7 +235,7 @@ public class Constants {
      */
     @Deprecated
     public static PrintStream getTaskLogStream(Project project, String name) {
-        return getTaskLogStream(project.getBuildDir(), name);
+        return getTaskLogStream(ProjectBuildDirHelper.getBuildDir(project), name);
     }
 
     public static PrintStream getTaskLogStream(File buildDir, String name) {

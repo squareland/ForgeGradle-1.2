@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
 import net.minecraftforge.gradle.FileUtils;
 import net.minecraftforge.gradle.JavaExecSpecHelper;
+import net.minecraftforge.gradle.ProjectBuildDirHelper;
 import net.minecraftforge.gradle.common.BaseExtension;
 import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.delayed.DelayedFile;
@@ -37,7 +38,7 @@ import java.util.zip.ZipOutputStream;
 import static net.minecraftforge.gradle.common.Constants.EXT_NAME_MC;
 
 public class DecompileTask extends CachedTask {
-    private final File buildDir = getProject().getBuildDir();
+    private final File buildDir = ProjectBuildDirHelper.getBuildDir(getProject());
     private final ExtensionContainer extensions = getProject().getExtensions();
     @InputFile
     private DelayedFile inJar;

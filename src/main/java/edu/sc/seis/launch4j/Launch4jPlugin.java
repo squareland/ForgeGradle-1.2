@@ -1,6 +1,7 @@
 package edu.sc.seis.launch4j;
 
 import net.minecraftforge.gradle.GradleVersionUtils;
+import net.minecraftforge.gradle.ProjectBuildDirHelper;
 import net.minecraftforge.gradle.user.UserConstants;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
@@ -74,7 +75,7 @@ public class Launch4jPlugin implements Plugin<Project> {
         //task.with(configureDistSpec(project));
         task.into((Callable<File>) () -> {
             Launch4jPluginExtension ext = ((Launch4jPluginExtension) task.getProject().getExtensions().getByName(Launch4jPlugin.LAUNCH4J_CONFIGURATION_NAME));
-            return task.getProject().file(task.getProject().getBuildDir() + "/" + ext.getOutputDir() + "/lib");
+            return task.getProject().file(ProjectBuildDirHelper.getBuildDir(task.getProject()) + "/" + ext.getOutputDir() + "/lib");
         });
         return task;
     }
@@ -87,7 +88,7 @@ public class Launch4jPlugin implements Plugin<Project> {
         project.afterEvaluate(project1 -> {
             Launch4jPluginExtension ext = ((Launch4jPluginExtension) task.getProject().getExtensions().getByName(Launch4jPlugin.LAUNCH4J_CONFIGURATION_NAME));
 
-            task.setCommandLine(ext.getLaunch4jCmd(), project1.getBuildDir() + "/" + ext.getOutputDir() + "/" + ext.getXmlFileName());
+            task.setCommandLine(ext.getLaunch4jCmd(), ProjectBuildDirHelper.getBuildDir(project1) + "/" + ext.getOutputDir() + "/" + ext.getXmlFileName());
             task.setWorkingDir(project1.file(ext.getChdir()));
         });
         return task;

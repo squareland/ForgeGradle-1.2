@@ -2,9 +2,12 @@ package net.minecraftforge.gradle;
 
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSetContainer;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class JavaExtensionHelper {
     private static final Extensions GETTERS_AND_SETTERS = GradleVersionUtils.choose("7.1",
@@ -27,33 +30,59 @@ public class JavaExtensionHelper {
     }
 
     private static class ConventionGetter implements Extensions {
+        private static final Method getConvention;
+        private static final Method getPlugins;
+        private static final Class<?> javaConventionClass;
+        private static final Method getSourceSets;
+        private static final Method getTargetCompatibility;
+        private static final Method setSourceCompatibility;
+        private static final Method setTargetCompatibility;
+        private static final Class<?> conventionClass;
+
+        static {
+            try {
+                conventionClass = Class.forName("org.gradle.api.plugins.Convention");
+                getConvention = Project.class.getMethod("getConvention");
+                getPlugins = conventionClass.getMethod("getPlugins");
+                javaConventionClass = Class.forName("org.gradle.api.plugins.JavaPluginConvention");
+                getSourceSets = javaConventionClass.getMethod("getSourceSets");
+                getTargetCompatibility = javaConventionClass.getMethod("getTargetCompatibility");
+                setSourceCompatibility = javaConventionClass.getMethod("setSourceCompatibility", Object.class);
+                setTargetCompatibility = javaConventionClass.getMethod("setTargetCompatibility", Object.class);
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         @Override
         @Deprecated
         public SourceSetContainer getSourceSets(Project project) {
-            return getType(project).getSourceSets();
+            return call(getSourceSets, getType(project));
         }
 
         @Override
         @Deprecated
         public void setSourceCompatibility(Project project, Object value) {
-            getType(project).setSourceCompatibility(value);
+            call(setSourceCompatibility, getType(project), value);
         }
 
         @Override
         @Deprecated
         public void setTargetCompatibility(Project project, Object value) {
-            getType(project).setTargetCompatibility(value);
+            call(setTargetCompatibility, getType(project), value);
         }
 
         @Override
         @Deprecated
         public JavaVersion getTargetCompatibility(Project project) {
-            return getType(project).getTargetCompatibility();
+            return call(getTargetCompatibility, getType(project));
         }
 
         @Deprecated
-        public JavaPluginConvention getType(Project project) {
-            return (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+        public Object getType(Project project) {
+            Object convention = call(getConvention, project);
+            Map<String, Object> plugins = call(getPlugins, convention);
+            return plugins.get("java");
         }
     }
 
@@ -97,5 +126,14 @@ public class JavaExtensionHelper {
 
     public static JavaVersion getTargetCompatibility(Project project) {
         return VERSION_GETTERS.getTargetCompatibility(project);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T call(Method method, Object self, Object... args) {
+        try {
+            return (T) method.invoke(self, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

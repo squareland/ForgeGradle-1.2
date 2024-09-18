@@ -1052,11 +1052,7 @@ public abstract class UserBasePlugin<T extends UserExtension> extends BasePlugin
         // configure output of recompile task
         {
             JavaCompile compile = (JavaCompile) project.getTasks().getByName("recompMinecraft");
-            if (GradleVersionUtils.isBefore("6.1")) {
-                compile.setDestinationDir(delayedFile(RECOMP_CLS_DIR).call());
-            } else {
-                compile.getDestinationDirectory().set(delayedFile(RECOMP_CLS_DIR).call());
-            }
+            CompileTaskHelper.setDestinationDir(compile, delayedFile(RECOMP_CLS_DIR).call());
         }
 
         // configure output of repackage task.
@@ -1236,7 +1232,7 @@ public abstract class UserBasePlugin<T extends UserExtension> extends BasePlugin
     }
 
     private void addGitIgnore() {
-        File git = new File(project.getBuildDir(), ".gitignore");
+        File git = new File(ProjectBuildDirHelper.getBuildDir(project), ".gitignore");
         if (!git.exists()) {
             git.getParentFile().mkdir();
             try {

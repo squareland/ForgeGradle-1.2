@@ -88,7 +88,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             project.getGradle().addBuildListener(listener);
         }
 
-        if (project.getBuildDir().getAbsolutePath().contains("!")) {
+        if (ProjectBuildDirHelper.getBuildDir(project).getAbsolutePath().contains("!")) {
             project.getLogger().error("Build path has !, This will screw over a lot of java things as ! is used to denote archive paths, REMOVE IT if you want to continue");
             throw new RuntimeException("Build path contains !");
         }
