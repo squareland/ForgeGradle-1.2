@@ -120,14 +120,14 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: ./gradlew --init-script=useLocal.init.gradle ${{ matrix.setting }} --stacktrace
+          command: ./gradlew --init-script=useLocal.init.gradle ${{ matrix.setting }} --stacktrace --warning-mode all
 
       - name: Run Build Task
         uses: nick-invision/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: ./gradlew --init-script=useLocal.init.gradle build --stacktrace
+          command: ./gradlew --init-script=useLocal.init.gradle build --stacktrace --warning-mode all
 
   conclude:
     runs-on: ubuntu-latest
