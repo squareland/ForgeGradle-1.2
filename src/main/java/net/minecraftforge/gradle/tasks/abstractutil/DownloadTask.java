@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 
 @CacheableTask
-public class DownloadTask extends DefaultTask {
+public class DownloadTask extends CachedTask {
     @Input
     private DelayedString url;
     @OutputFile

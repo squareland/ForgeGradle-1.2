@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import net.minecraftforge.gradle.GradleVersionUtils;
 import net.minecraftforge.gradle.delayed.DelayedFile;
+import net.minecraftforge.gradle.tasks.abstractutil.CachedTask;
 import net.minecraftforge.srg2source.rangeapplier.MethodData;
 import net.minecraftforge.srg2source.rangeapplier.SrgContainer;
 import org.gradle.api.DefaultTask;
@@ -23,7 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 @CacheableTask
-public class GenSrgTask extends DefaultTask {
+public class GenSrgTask extends CachedTask {
     @InputFile
     @PathSensitive(PathSensitivity.ABSOLUTE)
     private DelayedFile inSrg;
