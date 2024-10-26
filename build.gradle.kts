@@ -8,7 +8,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.anatawa12.forge"
+group = "ru.squareland.forge"
 
 version = "1.2-${property("version")!!}"
 
